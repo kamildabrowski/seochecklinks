@@ -1,0 +1,111 @@
+<html>
+		<head>
+			<title>Check Links</title>
+			<meta charset="utf-8"/>    
+
+			<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.js"></script> 
+			<style>
+				textarea {
+					width:800px;
+					height:150px;
+					font-size:12px;				
+				}
+				#ajaxloader{
+					display:none;
+				}
+			</style>
+			<script>
+				$(document).ready(function() {
+					lock = false;
+					$('#clear').click(function() {
+						$('#result').text('');
+						$('#now').text(0);
+						$('#total').text(0);
+					});
+					//http://jquery.com/upgrade-guide/1.9/#live-removed
+					$(document).on("click", "#result .check", function() {						
+						$(this).html('<img src="http://powerscreen.biz/static/1-0.gif" class="ajaxloader">');						 
+						
+						 $.get('checklinks.php', { action:'ajax', url:$(this).attr('data-url'), i:$(this).attr('data-i'), keyword:$(this).attr('data-keyword'), link:$(this).attr('data-link'), ext:$(this).attr('data-checked') }, function(data){
+						 	
+						 	$('#result #url'+data.i).html('<td>'+(data.i+1)+'</td><td>'+(data.status?'is':'<span style="color:red;">not</span>')+'</td><td>'+(data.follow!==''?(data.follow?'follow':'<span style="color:orange">nofollow</span>'):'-')+'</td><td>'+data.url+'</td>'+(data.whatever?'<td>'+data.name+'</td>':'<td>'+data.keyword+'</td>')+'<td><button class="check" data-url="'+data.url+'" data-i="'+data.i+'" data-keyword="'+data.keyword+'" data-checked="'+(data.whatever?1:0)+'" data-link="'+data.link+'">Check</button></td>');
+						 												 				   		
+						}, "json");
+												
+					});
+					var a = 0;
+					$('#button').click(function() {
+						if(!lock) {
+							$('#clear').click();
+							lock = true;
+							$('#ajaxloader').show();
+							
+							var lines = $('#data').val().split('\n');							
+							var o = 0 ;
+							var totallines = lines.length;  							
+							$('#total').text(totallines);
+							var checked = $('#ext').is(':checked');
+							$('#total').text(totallines);
+							for(var i=0; i<totallines; i++) {
+								var cols = lines[i].split('\t');
+								for(var t=0; t<3; t++) {
+									if(cols[i]==undefined){
+										cols[i] = '';
+									} 	
+								}									
+								
+								 $('#result').append('<tr id="url'+i+'"><td><img src="http://powerscreen.biz/static/1-0.gif" class="ajaxloader"></td></tr>');		
+								 $.get('checklinks.php', { action:'ajax', url:cols[2], i:i, keyword:cols[1], link:cols[0], ext:(checked?1:0) }, function(data){
+								 	$('#now').text((o+1));
+								 
+								 	$('#result #url'+data.i).html('<td>'+(data.i+1)+'</td><td>'+(data.status?'is':'<span style="color:red;">not</span>')+'</td><td>'+(data.follow!==''?(data.follow?'follow':'<span style="color:orange">nofollow</span>'):'-')+'</td><td>'+data.url+'</td>'+(data.whatever?'<td>'+data.name+'</td>':'<td>'+data.keyword+'</td>')+'<td><button class="check" data-url="'+data.url+'" data-i="'+data.i+'" data-keyword="'+data.keyword+'" data-checked="'+(data.whatever?1:0)+'" data-link="'+data.link+'">check</button></td>');								   			
+							   		if(o++==(totallines-1)) {
+							   			lock = false;
+										$('#ajaxloader').hide();	
+							   		}
+									
+								}, "json");
+							}
+
+						} else {
+							alert('server busy, please wait... ;)');
+						}
+						return false;
+						
+					})					
+					
+				});
+			</script>
+		</head>				
+	<body>
+	<input type="checkbox" id="ext"><label for="ext">Show real anchor</label><br/>
+link \t anchor \t address<br/>
+	<textarea id="data">/category/quest-games	Games with Quests	http://armorgames.com/
+//www.youtube.com/yt/copyright/	Copyright	http://www.youtube.com/</textarea><br/>
+					
+	<button id="button">Send</button>
+	
+	<img src="http://powerscreen.biz/static/1-0.gif" id="ajaxloader">
+	Records: <span id="total">0</span> / <span id="now">0</span>
+	<table cellpadding="5">
+		<thead>
+			<tr>
+			<th width="20">Lp</th>
+			<th>Status</th>			
+			<th>rel</th>
+			<th width="30">Link</th>
+			<th>Anchor</th>			
+			
+			<th></th>			
+			<th></th>
+		</tr>
+		</thead>
+		<tbody id="result">
+		
+		</tbody>
+	</ul>
+	
+	<button id="clear">clear</button>
+	
+	</body>
+	</html>

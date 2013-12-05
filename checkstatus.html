@@ -1,0 +1,95 @@
+<html>
+		<head>
+			<title>Check status</title>
+			<meta charset="utf-8"/>    
+
+			<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.js"></script> 
+			<style>
+				textarea {
+					width:600px;
+					height:150px;
+					font-size:12px;				
+				}
+				#ajaxloader{
+					display:none;
+				}
+			</style>
+			<script>
+				$(document).ready(function() {
+					lock = false;
+					$('#clear').click(function() {
+						$('#result').text('');
+						$('#now').text(0);
+						$('#total').text(0);
+					});
+					//http://jquery.com/upgrade-guide/1.9/#live-removed
+					$(document).on("click", "#result .check", function() {
+						
+						$(this).html('<img src="http://powerscreen.biz/static/1-0.gif" class="ajaxloader">');
+						 
+						 var oneurl = $(this).attr('data-url');
+						 $.get('checkstatus.php', { action:'ajax', url:oneurl, i:$(this).attr('data-i') }, function(data){						 							 	
+						 	$('#result #url'+data.i).html('<td>'+(data.i+1)+'</td><td>'+data.status+'</td><td>'+(data.redirect==''?'':''+data.redirect)+'</td><td>'+oneurl+'</td><td><button class="check" data-url="'+oneurl+'" data-i="'+data.i+'">Check</button></td>');
+						}, "json");						
+					});
+					$('#button').click(function() {
+						if(!lock) {
+							$('#clear').click();
+							lock = true;
+							$('#ajaxloader').show();
+							
+							var lines = $('#data').val().split('\n');							
+							var o = 0 ;
+							var totallines = lines.length;  							
+							$('#total').text(totallines);
+							
+							for(var i=0; i<totallines; i++) {
+								 $('#result').append('<tr id="url'+i+'"><td><img src="http://powerscreen.biz/static/1-0.gif" class="ajaxloader"></td></tr>');		
+								 $.get('checkstatus.php', { action:'ajax', url:lines[i], i:i }, function(data){
+								 	$('#now').text((o+1));
+								 	
+								 	$('#result #url'+data.i).html('<td>'+(data.i+1)+'</td><td>'+data.status+'</td><td>'+(data.redirect===''?'':''+data.redirect)+'</td><td>'+lines[data.i]+'</td><td><button class="check" data-url="'+lines[data.i]+'" data-i="'+data.i+'">Check</button></td>');								   			
+							   		if(o++==(totallines-1)) {
+							   			lock = false;
+										$('#ajaxloader').hide();	
+							   		}
+									
+								}, "json");
+							}
+
+						} else {
+							alert('server busy, please wait... ;)');
+						}
+						return false;
+						
+					})					
+					
+				});
+			</script>
+		</head>				
+	<body>
+	
+	<textarea id="data">http://google.com
+http://facebook.com</textarea><br/>					
+	<button id="button">Send</button>
+	
+	<img src="http://powerscreen.biz/static/1-0.gif" id="ajaxloader">
+	Records: <span id="total">0</span> / <span id="now">0</span>
+	<table cellpadding="5">
+		<thead>
+		<tr>
+			<th width="20">Lp</th>
+			<th width="30">status</th>
+			<th>redirect to</th>
+			<th>url</th>
+		</tr>	
+		</thead>
+		<tbody id="result">
+		
+		</tbody>
+	</ul>
+	
+	<button id="clear">clear</button>
+	
+	</body>
+	</html>
