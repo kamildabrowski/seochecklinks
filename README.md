@@ -26,4 +26,4 @@ Nr | Check anchor | rel(follow,nofollow,Null) | link | Real Anchor
 --------
 Keywords:
 
-Seo ajax links link http status multiple anchor nofollow rel, seo links check
+Seo ajax links link http status multiple anchor nofollow rel, seo links check, redirects redirect show link
