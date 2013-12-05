@@ -26,4 +26,4 @@ Nr | Check anchor | rel(follow,nofollow,Null) | link | Real Anchor
 --------
 Keywords:
 
-Seo, Ajax, Links, link, Http status, Status, Http, multiple, anchor, nofollow, rel
+Seo ajax links link http status multiple anchor nofollow rel, seo links check
